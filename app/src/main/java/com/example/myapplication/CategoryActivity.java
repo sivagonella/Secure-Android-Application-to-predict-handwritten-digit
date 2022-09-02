@@ -1,14 +1,20 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.PathUtils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.FileUtils;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -19,12 +25,19 @@ import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.MultipartReader;
 import okhttp3.OkHttp;
@@ -32,17 +45,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.BufferedSink;
 
 public class CategoryActivity extends AppCompatActivity {
 
     Spinner category;
     Button submit;
-    String selectedImagePath;
-    ImageView image;
     Uri selectedImageUri;
-    Bitmap bitmap;
     String categorySelected;
-    TextView label;
+    File image = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,19 +63,36 @@ public class CategoryActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         selectedImageUri = (Uri) bundle.get("BitmapImage");
 
+//        Bitmap bitmap = null;
+//        try {
+//            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        ImageView imageView = findViewById(R.id.imageToSubmit);
+//        imageView.setImageBitmap(bitmap);
 
+        InputStream inputStream;
+        OutputStream outputStream;
 
-        File im = new File(selectedImageUri.getEncodedPath());
+        try {
+            inputStream = getApplicationContext().getContentResolver().openInputStream(selectedImageUri);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                image = new File(getApplicationContext().getCacheDir(), LocalDateTime.now() + ".jpg");
+            }
+            image.createNewFile();
+            outputStream = new FileOutputStream(image);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                FileUtils.copy(inputStream, outputStream);
+                outputStream.flush();
+            }
+        }catch (Exception e){
 
-//        image = findViewById(R.id.imageToSubmit);
+        }
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(im.getAbsolutePath());
-
-            ImageView myImage = (ImageView) findViewById(R.id.imageToSubmit);
-
-//            myImage.setImageBitmap(myBitmap);
-
-        myImage.setImageURI(selectedImageUri);
+        ImageView imageView = findViewById(R.id.imageToSubmit);
+        Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath());
+        imageView.setImageBitmap(bitmap);
 
         category = findViewById(R.id.category);
         String[] categories = new String[] {"Portrait", "Fashion", "Sports", "Still", "Wildlife", "Other"};
@@ -84,63 +112,43 @@ public class CategoryActivity extends AppCompatActivity {
 
     private void sendImageAndCategory(){
 
-//        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("category", categorySelected)
-//                .addFormDataPart("image", selectedImageUri.toString(), selectedImageUri.getPath())
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart(
+                "image",
+                image.getName(),
+                RequestBody.create(image, MediaType.parse("image/*jpg"))).
+                addFormDataPart("category", categorySelected).build();
 
-//        String postUrl = "http://192.168.0.127:9000/upload";
-//        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-//
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inPreferredConfig = Bitmap.Config.RGB_565;
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        Bitmap bitmap = BitmapFactory.decodeFile(selectedImageUri.getPath(), options);
+        Request request = new Request.Builder().url("http://192.168.0.127:9000/upload").post(requestBody).build();
+        OkHttpClient okHttpClient = new OkHttpClient();
 
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView responseText = findViewById(R.id.label);
+                        responseText.setText("Failed to Connect to Server. Please Try Again.");
+                    }
+                });
+            }
 
-//        OkHttpClient okHttpClient = new OkHttpClient();
-//        RequestBody formBody = new FormBody.Builder().add("category", categorySelected).build();
-//
-//        Request request = new Request.Builder().url("http://192.168.0.127/uploadText").post(formBody).build();
-//
-//        okHttpClient.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            @Override
-//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-//                runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//
-//                        label = findViewById(R.id.label);
-//                        try {
-//                            label.setText(response.body().string());
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                });
-//            }
-//        });
-
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView responseText = findViewById(R.id.label);
+                        try {
+                            responseText.setText("Server's Response\n" + response.body().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
     }
 
-    private String getFilePath(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(projection[0]);
-            String picturePath = cursor.getString(columnIndex); // returns null
-            cursor.close();
-            return picturePath;
-        }
-        return null;
-    }
 
 }
