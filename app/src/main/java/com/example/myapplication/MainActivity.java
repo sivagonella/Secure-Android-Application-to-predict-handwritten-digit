@@ -86,14 +86,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(MainActivity.this, "server_down", Toast.LENGTH_SHORT).show();
-                        pagenameTextView.setText("error connecting to the server");
+                        pagenameTextView.setText("Error connecting to the server");
                     }
                 });
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                pagenameTextView.setText(response.body().string());
+                pagenameTextView.setText("Capture an image to continue");
             }
         });
     }
@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
     );
+
     private void nextPage(View view){
         Intent myIntent = new Intent(MainActivity.this, CategoryActivity.class);
         myIntent.putExtra("BitmapImage", selectedImageUri);

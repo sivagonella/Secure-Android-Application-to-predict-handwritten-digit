@@ -1,5 +1,9 @@
 package com.example.myapplication;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,15 +68,6 @@ public class CategoryActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         selectedImageUri = (Uri) bundle.get("BitmapImage");
 
-//        Bitmap bitmap = null;
-//        try {
-//            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        ImageView imageView = findViewById(R.id.imageToSubmit);
-//        imageView.setImageBitmap(bitmap);
-
         InputStream inputStream;
         OutputStream outputStream;
 
@@ -110,6 +106,16 @@ public class CategoryActivity extends AppCompatActivity {
         });
     }
 
+    ActivityResultLauncher<Intent> launchAnotherActivity = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+
+                }
+            }
+    );
+
     private void sendImageAndCategory(){
 
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart(
@@ -127,8 +133,7 @@ public class CategoryActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = findViewById(R.id.label);
-                        responseText.setText("Failed to Connect to Server. Please Try Again.");
+                        Toast.makeText(getApplicationContext(), "Failure connecting to server", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -138,12 +143,8 @@ public class CategoryActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = findViewById(R.id.label);
-                        try {
-                            responseText.setText("Server's Response\n" + response.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Intent changeActivityIntent = new Intent(CategoryActivity.this, SuccessScreenActivity.class);
+                        launchAnotherActivity.launch(changeActivityIntent);
                     }
                 });
             }
