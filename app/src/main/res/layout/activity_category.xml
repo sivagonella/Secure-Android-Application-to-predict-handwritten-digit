@@ -6,45 +6,50 @@
     android:layout_height="match_parent"
     tools:context=".CategoryActivity">
 
-    <RelativeLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/imageToSubmit"
-            android:layout_width="500dp"
-            android:layout_height="500dp"
-            android:layout_marginTop="16dp"/>
-
-        <TextView
-            android:id="@+id/label"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Category"
-            android:textStyle="bold"
-            android:textSize="24dp"
-            android:textColor="@color/black"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_below="@id/imageToSubmit"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <Spinner
-            android:id="@+id/category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/label"
-            />
+            <ImageView
+                android:id="@+id/imageToSubmit"
+                android:layout_width="500dp"
+                android:layout_height="500dp"
+                android:layout_marginTop="16dp"/>
 
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/category"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:text="Upload"/>
+            <TextView
+                android:id="@+id/label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Category"
+                android:textStyle="bold"
+                android:textSize="24dp"
+                android:textColor="@color/black"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_below="@id/imageToSubmit"/>
 
-    </RelativeLayout>
+            <Spinner
+                android:id="@+id/category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/label"
+                />
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/category"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:text="Upload"/>
+        </RelativeLayout>
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -124,7 +124,7 @@ public class CategoryActivity extends AppCompatActivity {
                 RequestBody.create(image, MediaType.parse("image/*jpg"))).
                 addFormDataPart("category", categorySelected).build();
 
-        Request request = new Request.Builder().url("http://192.168.0.127:9000/upload").post(requestBody).build();
+        Request request = new Request.Builder().url(getString(R.string.ip_address) + "upload").post(requestBody).build();
         OkHttpClient okHttpClient = new OkHttpClient();
 
         okHttpClient.newCall(request).enqueue(new Callback() {

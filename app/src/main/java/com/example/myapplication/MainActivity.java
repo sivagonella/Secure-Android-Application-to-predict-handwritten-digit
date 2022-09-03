@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         OkHttpClient okHttpClient = new OkHttpClient();
 
-        Request request = new Request.Builder().url("http://192.168.0.127:9000").build();
+        Request request = new Request.Builder().url(getString(R.string.ip_address)).build();
 
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
