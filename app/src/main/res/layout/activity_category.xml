@@ -21,30 +21,11 @@
                 android:layout_height="500dp"
                 android:layout_marginTop="16dp"/>
 
-            <TextView
-                android:id="@+id/label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Select Category"
-                android:textStyle="bold"
-                android:textSize="24dp"
-                android:textColor="@color/black"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_below="@id/imageToSubmit"/>
-
-            <Spinner
-                android:id="@+id/category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/label"
-                />
-
             <Button
                 android:id="@+id/submit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/category"
+                android:layout_below="@id/imageToSubmit"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:text="Upload"/>

@@ -54,7 +54,6 @@ import okio.BufferedSink;
 
 public class CategoryActivity extends AppCompatActivity {
 
-    Spinner category;
     Button submit;
     Uri selectedImageUri;
     String categorySelected;
@@ -74,7 +73,7 @@ public class CategoryActivity extends AppCompatActivity {
         try {
             inputStream = getApplicationContext().getContentResolver().openInputStream(selectedImageUri);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                image = new File(getApplicationContext().getCacheDir(), LocalDateTime.now() + ".jpg");
+                image = new File(getApplicationContext().getCacheDir(), LocalDateTime.now() + ".png");
             }
             image.createNewFile();
             outputStream = new FileOutputStream(image);
@@ -90,16 +89,10 @@ public class CategoryActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath());
         imageView.setImageBitmap(bitmap);
 
-        category = findViewById(R.id.category);
-        String[] categories = new String[] {"Portrait", "Fashion", "Sports", "Still", "Wildlife", "Other"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories);
-        category.setAdapter(adapter);
-
         submit = findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                categorySelected = category.getSelectedItem().toString();
                 sendImageAndCategory();
 
             }
@@ -121,8 +114,7 @@ public class CategoryActivity extends AppCompatActivity {
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart(
                 "image",
                 image.getName(),
-                RequestBody.create(image, MediaType.parse("image/*jpg"))).
-                addFormDataPart("category", categorySelected).build();
+                RequestBody.create(image, MediaType.parse("image/*png"))).build();
 
         Request request = new Request.Builder().url(getString(R.string.ip_address) + "upload").post(requestBody).build();
         OkHttpClient okHttpClient = new OkHttpClient();
