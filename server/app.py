@@ -25,12 +25,13 @@ def upload():
         image = cv2.resize(image, (28,28))
         image = np.array(image)
         image = image.reshape(1,28,28,1)
+        image = 255 - image
+        image = image/255.0
 
-        model = load_model('mnist.h5')
+        model = load_model('deepLearningModel')
 
         res = model.predict([image])[0]
         number = np.argmax(res)
-        print(type(number))
 
         path = str(number) + '/'
 
@@ -43,6 +44,7 @@ def upload():
 
         return jsonify({
             "message": "Image Uploaded Successfully ",
+            "number": int(number),
         })
 
 if __name__ == "__main__":

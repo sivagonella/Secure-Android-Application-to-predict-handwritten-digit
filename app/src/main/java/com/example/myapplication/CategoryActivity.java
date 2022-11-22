@@ -63,6 +63,7 @@ public class CategoryActivity extends AppCompatActivity {
     File image = null;
     int number;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +99,6 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sendImageAndCategory();
-
             }
         });
     }
@@ -113,7 +113,7 @@ public class CategoryActivity extends AppCompatActivity {
             }
     );
 
-    private void sendImageAndCategory(){
+    protected void sendImageAndCategory() {
 
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart(
                 "image",
@@ -136,17 +136,17 @@ public class CategoryActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    number = jsonObject.getInt("number");
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response.body().string());
-                            number = jsonObject.getInt("number");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                         Intent changeActivityIntent = new Intent(CategoryActivity.this, SuccessScreenActivity.class);
                         changeActivityIntent.putExtra("number", number);
                         launchAnotherActivity.launch(changeActivityIntent);
@@ -154,7 +154,8 @@ public class CategoryActivity extends AppCompatActivity {
                 });
             }
         });
-    }
+
+    };
 
 
 }
