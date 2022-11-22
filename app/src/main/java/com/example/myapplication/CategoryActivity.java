@@ -28,6 +28,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -58,6 +61,7 @@ public class CategoryActivity extends AppCompatActivity {
     Uri selectedImageUri;
     String categorySelected;
     File image = null;
+    int number;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +139,16 @@ public class CategoryActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response.body().string());
+                            number = jsonObject.getInt("number");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         Intent changeActivityIntent = new Intent(CategoryActivity.this, SuccessScreenActivity.class);
+                        changeActivityIntent.putExtra("number", number);
                         launchAnotherActivity.launch(changeActivityIntent);
                     }
                 });
